@@ -22,18 +22,19 @@
             margin-bottom: 10px;
         }
 
+        /* Variation 1 */
         .nav1 {
             background-color: #f8f9f8;
             padding: 10px;
         }
 
         .nav1 ul {
-            list-style: none;
             display: flex;
             justify-content: space-evenly;
             margin: 0;
             padding: 0;
             align-items: center;
+            list-style: none;
         }
 
         .nav1 li {
@@ -73,16 +74,17 @@
             cursor: pointer;
         }
 
+        /* Variation 2 */
         .nav2 {
             background-color: #51a54e;
             width: 200px;
             padding: 20px;
         }
- 
+
         .nav2 ul {
-            list-style-type: none;
             margin: 0;
             padding: 0;
+            list-style-type: none;
         }
 
         .nav2 li {
@@ -110,6 +112,63 @@
             cursor: pointer;
         }
 
+        /* Variation 3 */
+        .nav3 {
+            background-color: #f8f9f8;
+            padding: 10px;
+        }
+
+        .nav3 ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-evenly;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav3 li {
+            position: relative;
+        }
+
+        .nav3 a {
+            text-decoration: none;
+            color: black;
+            padding: 10px;
+            display: inline-block;
+        }
+
+        .nav3 .login-btn {
+            background-color: #254bf6;
+            border: none;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #f8f9f8;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            min-width: 160px;
+        }
+
+        .dropdown-content a {
+            padding: 10px;
+            display: block;
+            color: black;
+            white-space: nowrap;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
     </style>
 </head>
 
@@ -126,6 +185,7 @@
             </ul>
         </nav>
     </div>
+
     <div class="nav-container">
         <h2>Variation 2 - Vertical with hover effect</h2>
         <nav class="nav2">
@@ -138,21 +198,24 @@
             <button class="login-btn">Login</button>
         </nav>
     </div>
+
     <div class="nav-container">
         <h2>Variation 3 - Horizontal with dropdown</h2>
-        <ul>
-            <li><a href="#">Home</a></li>
-            <li>
-                <select>
-                    <option>About</option>
-                    <option>Services</option>
-                    <option>Our Team</option>
-                    <option>Contact</option>
-                </select>
-            </li>
-            <li><a href="#">Products</a></li>
-            <li><button>Login</button></li>
-        </ul>
+        <nav class="nav3">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li class="dropdown">
+                    <a href="#">About</a>
+                    <div class="dropdown-content">
+                        <a href="#">Services</a>
+                        <a href="#">Our Team</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </li>
+                <li><a href="#">Products</a></li>
+                <li><button class="login-btn">Login</button></li>
+            </ul>
+        </nav>
     </div>
 </body>
 
