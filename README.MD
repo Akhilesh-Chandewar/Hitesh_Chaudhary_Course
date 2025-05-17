@@ -1,1 +1,3 @@
 THIS GIT REPO CONSIST OF HITESH CHAUDHARY COURSE UDEMY VIDEO TUTORIALS CODE FILES AND NOTES
+
+This is Tailwind playgroud : https://play.tailwindcss.com/qp3xPnlx3i
