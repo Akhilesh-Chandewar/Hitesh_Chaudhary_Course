@@ -68,7 +68,7 @@ topCities.pop();
 let europeanCities = ["Paris", "Rome"];
 let asianCities = ["Tokyo", "Bangkok"];
 let worldCities = europeanCities.concat(asianCities);
-
+// worldCities = [...europeanCities, ...asianCities];
 console.log(worldCities);
 
 /* 
