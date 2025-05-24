@@ -30,6 +30,18 @@ function addTask(args) {
     }
 }
 
+function toggleTaskCompletion(args) {
+    const todos = readTodos();
+    const index = parseInt(args[0], 10) - 1;
+    if (isNaN(index) || index < 0 || index >= todos.length) {
+        console.log("Invalid task number.");
+        return;
+    }
+    todos[index].completed = !todos[index].completed;
+    writeTodos(todos);
+    console.log(`Task ${index + 1} marked as ${todos[index].completed ? 'completed' : 'not completed'}.`);
+}
+
 function listTasks() {
     const todos = readTodos();
     if (todos.length === 0) {
@@ -76,6 +88,9 @@ const args = process.argv.slice(3);
 switch (command) {
     case "add":
         addTask(args);
+        break;
+    case "toggle":
+        toggleTaskCompletion(args);
         break;
     case "list":
         listTasks();
