@@ -2,15 +2,36 @@ import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import logger from "./logger.js";
+import morgan from "morgan";
+
+const morganFormat = ":method :url :status :response-time ms";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
+
+app.use(
+    morgan(morganFormat, {
+        stream: {
+            write: (message) => {
+                const logObject = {
+                    method: message.split(" ")[0],
+                    url: message.split(" ")[1],
+                    status: message.split(" ")[2],
+                    responseTime: message.split(" ")[3],
+                };
+                logger.info(JSON.stringify(logObject));
+            },
+        },
+    })
+);
 
 let teaData = [];
 let nextId = 1;
 
 app.post('/teas', (req, res) => {
-    const {name , price} = req.body;
+    const { name, price } = req.body;
     if (!name || !price) {
         return res.status(400).json({ error: 'Name and price are required' });
     }
@@ -40,7 +61,7 @@ app.put('/teas/:id', (req, res) => {
     if (teaIndex === -1) {
         return res.status(404).json({ error: 'Tea not found' });
     }
-    
+
     const tea = teaData[teaIndex];
 
     if (name !== undefined) {
@@ -59,11 +80,11 @@ app.put('/teas/:id', (req, res) => {
 app.delete('/teas/:id', (req, res) => {
     const teaId = parseInt(req.params.id, 10);
     const teaIndex = teaData.findIndex(t => t.id === teaId);
-    
+
     if (teaIndex === -1) {
         return res.status(404).json({ error: 'Tea not found' });
     }
-    
+
     teaData.splice(teaIndex, 1);
     res.status(204).json('Tea deleted successfully');
 });
