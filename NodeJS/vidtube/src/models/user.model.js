@@ -67,18 +67,18 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
-        { userId: this._id, username: this.username },
+        { userId: this._id },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION }
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "15m" }
     );
-}
+};
 
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
-        { userId: this._id, username: this.username },
+        { userId: this._id },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
+        { expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d" } 
     );
-}
+};
 const User = mongoose.model('User', userSchema);
 export default User;

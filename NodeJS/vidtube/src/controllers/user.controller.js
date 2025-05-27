@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { uploadOnCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
 import jwt from 'jsonwebtoken';
 
+
 import User from '../models/user.model.js';
 
 
@@ -139,9 +140,9 @@ const loginUser = asyncHandler(async (req, res) => {
             .status(200)
             .cookie('accessToken', accessToken, options)
             .cookie('refreshToken', refreshToken, options)
-            .json(new ApiResponse(200, 
-                'Login successful' ,
-                {loggedInUser, accessToken, refreshToken}));
+            .json(new ApiResponse(200,
+                'Login successful',
+                { loggedInUser, accessToken, refreshToken }));
 
     } catch (error) {
         console.error('Login error:', error);
@@ -201,8 +202,25 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-    
+    try {
+        await User.findByIdAndUpdate(req.user._id,
+            { $set: { refreshToken: '' }}, { new: true });
+            
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+        };
+        return res
+            .status(200)
+            .clearCookie('accessToken', options)
+            .clearCookie('refreshToken', options)
+            .json(new ApiResponse(200, 'User logged out successfully'));
+
+    } catch (error) {
+        console.error('Logout error:', error);
+        throw new ApiError(500, 'Logout failed');  
+    }
 });
 
 
-export { registerUser , loginUser , refreshAccessToken , logoutUser };
+export { registerUser, loginUser, refreshAccessToken, logoutUser };
