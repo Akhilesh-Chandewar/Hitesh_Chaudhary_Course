@@ -27,11 +27,11 @@ const userSchema = new Schema(
         },
         avatar: {
             type: String,
-            default: 'https://example.com/default-avatar.png',
+            default: '',
         },
         cover: {
             type: String,
-            default: 'https://example.com/default-cover.png',
+            default: '',
         },
         watchHistory: [
             {
@@ -66,7 +66,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 }
 
 userSchema.methods.generateAccessToken = function () {
-    returnjwt.sign(
+    return jwt.sign(
         { userId: this._id, username: this.username },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION }

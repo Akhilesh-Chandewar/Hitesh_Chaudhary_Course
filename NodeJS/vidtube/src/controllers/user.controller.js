@@ -1,9 +1,28 @@
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { uploadOnCloudinary , deleteFromCloudinary } from '../utils/cloudinary.js';
+import { uploadOnCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
+import jwt from 'jsonwebtoken';
 
 import User from '../models/user.model.js';
+
+
+const generateTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+        user.refreshToken = refreshToken;
+        await user.save({ validatebeforeSave: false });
+        return { accessToken, refreshToken };
+    } catch (error) {
+        console.error('Token generation error:', error);
+        throw new ApiError(500, 'Token generation failed');
+    }
+};
 
 const registerUser = asyncHandler(async (req, res) => {
     const { fullname, username, email, password } = req.body;
@@ -62,10 +81,10 @@ const registerUser = asyncHandler(async (req, res) => {
             avatar: avatar,
             cover: cover
         });
-    
+
         const createdUser = await User.findById(newUser._id,)
             .select('-password -__v -refreshToken');
-    
+
         if (!createdUser) {
             throw new ApiError(500, 'User creation failed');
         }
@@ -84,4 +103,106 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 });
 
-export { registerUser }
+const loginUser = asyncHandler(async (req, res) => {
+    try {
+        const { email, username, password } = req.body;
+        if (!email && !username) {
+            throw new ApiError(400, 'Email or username is required');
+        }
+
+        const user = await User.findOne({
+            $or: [{ username }, { email }]
+        });
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+            throw new ApiError(401, 'Invalid password');
+        }
+
+        const { accessToken, refreshToken } = await generateTokens(user._id);
+
+        const loggedInUser = await User.findById(user._id)
+            .select('-password -__v -refreshToken');
+        if (!loggedInUser) {
+            throw new ApiError(500, 'User login failed');
+        }
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+        }
+
+        return res
+            .status(200)
+            .cookie('accessToken', accessToken, options)
+            .cookie('refreshToken', refreshToken, options)
+            .json(new ApiResponse(200, 
+                'Login successful' ,
+                {loggedInUser, accessToken, refreshToken}));
+
+    } catch (error) {
+        console.error('Login error:', error);
+        throw new ApiError(500, 'Login failed');
+    }
+});
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, 'Refresh token is required');
+    }
+
+    try {
+        const decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded?.userId);
+
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        if (user.refreshToken !== incomingRefreshToken) {
+            throw new ApiError(403, 'Refresh token mismatch');
+        }
+
+        const newAccessToken = user.generateAccessToken();
+        const newRefreshToken = user.generateRefreshToken();
+
+        user.refreshToken = newRefreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+        };
+
+        return res
+            .status(200)
+            .cookie('accessToken', newAccessToken, options)
+            .cookie('refreshToken', newRefreshToken, options)
+            .json(new ApiResponse(200, 'Access token refreshed successfully', {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+            }));
+
+    } catch (error) {
+        console.error('Refresh token error:', error);
+        if (error.name === 'TokenExpiredError') {
+            throw new ApiError(401, 'Refresh token has expired');
+        }
+        if (error.name === 'JsonWebTokenError') {
+            throw new ApiError(401, 'Invalid refresh token');
+        }
+        throw new ApiError(500, 'Failed to refresh access token');
+    }
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+    
+});
+
+
+export { registerUser , loginUser , refreshAccessToken , logoutUser };
