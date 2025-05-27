@@ -1,80 +1,79 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { use } from "react";
 
 const userSchema = new Schema(
     {
         username: {
-            type : String,
+            type: String,
             required: true,
             unique: true,
             trim: true,
             lowercase: true,
-            index : true
+            index: true
         },
         email: {
-            type : String,
+            type: String,
             required: true,
             unique: true,
             trim: true,
             lowercase: true,
-            index : true
+            index: true
         },
-        fullName: {
-            type : String,
+        fullname: {
+            type: String,
             required: true,
             trim: true
         },
         avatar: {
-            type : String,
+            type: String,
             default: 'https://example.com/default-avatar.png',
         },
-        coverImage: {
-            type : String,
+        cover: {
+            type: String,
             default: 'https://example.com/default-cover.png',
         },
-        waychHistory: [
+        watchHistory: [
             {
                 type: Schema.Types.ObjectId,
                 ref: 'Video',
             }
         ],
         password: {
-            type : String,
+            type: String,
             required: [true, 'Password is required'],
             minlength: 6
         },
         refreshToken: {
-            type : String,
+            type: String,
             default: null
         },
-    }, 
+    },
     {
         timestamps: true,
         versionKey: false
     }
 );
 
-userSchema.pre('save' , async function(next) {
+userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
 
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 }
 
-userSchema.methods.generateAccessToken = function() {
-   returnjwt.sign(
+userSchema.methods.generateAccessToken = function () {
+    returnjwt.sign(
         { userId: this._id, username: this.username },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION }
     );
 }
 
-userSchema.methods.generateRefreshToken = function() {
+userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         { userId: this._id, username: this.username },
         process.env.REFRESH_TOKEN_SECRET,

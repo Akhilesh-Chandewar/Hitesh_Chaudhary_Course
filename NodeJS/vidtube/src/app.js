@@ -16,7 +16,14 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 import healthcheckRouter from './routes/healthcheck.route.js';
-app.use('/api/v1/healthcheck', healthcheckRouter);
+import userRouter from './routes/user.route.js';
+import { errorHandler } from './middlewares/error.middlewar.js';
 
+app.use('/api/v1/healthcheck', healthcheckRouter);
+app.use('/api/v1/users', userRouter);
+
+
+
+app.use(errorHandler);
 
 export default app;

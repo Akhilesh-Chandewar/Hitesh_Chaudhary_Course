@@ -1,5 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config({
+    path: './.env',
+});
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -25,4 +29,18 @@ const uploadOnCloudinary = async (filePath) => {
     }
 }
 
-export { uploadOnCloudinary };
+const deleteFromCloudinary = async (publicId) => {
+    try {
+        if (!publicId) {
+            throw new Error('Public ID is required for deletion');
+        }
+        const result = await cloudinary.uploader.destroy(publicId);
+        console.log(`Delete result: ${publicId}`, result);
+        return result;
+    } catch (error) {
+        console.error('Error deleting from Cloudinary:', error);
+        throw new Error('Failed to delete image from Cloudinary');
+    }
+}
+
+export { uploadOnCloudinary , deleteFromCloudinary };
