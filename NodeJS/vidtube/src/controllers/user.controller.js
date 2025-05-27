@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 
 
 import User from '../models/user.model.js';
+import mongoose from 'mongoose';
 
 
 const generateTokens = async (userId) => {
@@ -347,5 +348,113 @@ const updateCover = asyncHandler(async (req, res) => {
     }
 });
 
+const getUserChannnelProfile = asyncHandler(async (req, res) => {
+    const { username } = req.params;
 
-export { registerUser, loginUser, refreshAccessToken, logoutUser, changePassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCover };
+    if (!username) {
+        throw new ApiError(400, 'Username is required');
+    }
+
+   try {
+     const channel = await User.aggregate([
+         { $match: { username } },
+         {
+             $lookup: {
+                 from: 'subscriptions',
+                 localField: '_id',
+                 foreignField: 'channel',
+                 as: 'subscribers'
+             }
+         },
+         {
+             $lookup: {
+                 from: 'subscriptions',
+                 localField: '_id',
+                 foreignField: 'subscriber',
+                 as: 'subscriptions'
+             }   
+         },
+         {
+             $addFields: {
+                 subscriberCount: { $size: '$subscribers' },
+                 subscriptionCount: { $size: '$subscriptions' },
+                 isSubscribed: {
+                     $in: [req.user._id, '$subscribers.subscriber']
+                 }
+             }
+         },
+         {
+             $project: {
+                fullname: 1,
+                 username: 1,
+                 email: 1,
+                 avatar: 1,
+                 cover: 1,
+                 subscriberCount: 1,
+                 subscriptionCount: 1,
+                 isSubscribed: 1
+             }
+         }
+     ]);
+     if (!channel || channel.length === 0) {
+         throw new ApiError(404, 'Channel not found');
+     }
+     return res.status(200).json(new ApiResponse(200, 'Channel profile retrieved successfully', channel[0]));
+   } catch (error) {
+       console.error('Get channel profile error:', error);
+       throw new ApiError(500, 'Failed to retrieve channel profile');
+    
+   }
+});
+
+const getWatchHistory = asyncHandler(async (req, res) => {
+    try {
+        const user = await User.aggregate([
+            { $match: { _id: new ObjectId(req.user._id) } },
+            {
+                $lookup: {
+                    from: 'video',
+                    localField: 'watchHistory',
+                    foreignField: '_id',
+                    as: 'watchHistory',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'owner',
+                                foreignField: '_id',
+                                as: 'ownerDetails',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            fullname: 1,
+                                            username: 1,
+                                            avatar: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $addFields: {
+                                owner: { $arrayElemAt: ['$ownerDetails', 0] }
+                            }
+                        }
+                    ]
+                }
+            },
+        ]);
+        if (!user || user.length === 0) {
+            throw new ApiError(404, 'User not found');
+        }
+        return res.status(200).json(
+            new ApiResponse(200, 'Watch history retrieved successfully', user[0].watchHistory)
+        );
+    } catch (error) {
+        console.error('Get watch history error:', error);
+        throw new ApiError(500, 'Failed to retrieve watch history');
+    }
+});
+
+
+export { registerUser, loginUser, refreshAccessToken, logoutUser, changePassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCover, getUserChannnelProfile, getWatchHistory };
