@@ -35,7 +35,6 @@ const deleteFromCloudinary = async (publicId) => {
             throw new Error('Public ID is required for deletion');
         }
         const result = await cloudinary.uploader.destroy(publicId);
-        console.log(`Delete result: ${publicId}`, result);
         return result;
     } catch (error) {
         console.error('Error deleting from Cloudinary:', error);

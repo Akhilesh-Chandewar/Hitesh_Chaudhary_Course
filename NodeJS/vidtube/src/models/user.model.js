@@ -29,7 +29,15 @@ const userSchema = new Schema(
             type: String,
             default: '',
         },
+        avatarPublicId: {
+            type: String,
+            default: '',
+        },
         cover: {
+            type: String,
+            default: '',
+        },
+        coverPublicId: {
             type: String,
             default: '',
         },

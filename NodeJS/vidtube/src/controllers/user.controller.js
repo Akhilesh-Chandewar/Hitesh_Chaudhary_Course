@@ -53,7 +53,6 @@ const registerUser = asyncHandler(async (req, res) => {
         const avatarUpload = await uploadOnCloudinary(avatarLocalPath);
         avatar = avatarUpload.secure_url;
         avatarPublicId = avatarUpload.public_id;
-        console.log('Avatar uploaded successfully:', avatar);
     } catch (error) {
         console.error('Avatar upload error:', error);
         throw new ApiError(500, 'Avatar upload failed');
@@ -66,7 +65,6 @@ const registerUser = asyncHandler(async (req, res) => {
             const coverUpload = await uploadOnCloudinary(coverLocalPath);
             cover = coverUpload.secure_url;
             coverPublicId = coverUpload.public_id;
-            console.log('Cover uploaded successfully:', cover);
         } catch (error) {
             console.error('Cover upload error:', error);
             throw new ApiError(500, 'Cover upload failed');
@@ -80,7 +78,9 @@ const registerUser = asyncHandler(async (req, res) => {
             email,
             password,
             avatar: avatar,
-            cover: cover
+            avatarPublicId: avatarPublicId,
+            cover: cover,
+            coverPublicId: coverPublicId,
         });
 
         const createdUser = await User.findById(newUser._id,)
@@ -222,5 +222,130 @@ const logoutUser = asyncHandler(async (req, res) => {
     }
 });
 
+const changePassword = asyncHandler(async (req, res) => {
+   try {
+     const { currentPassword, newPassword } = req.body;
+ 
+     if (!currentPassword || !newPassword) {
+         throw new ApiError(400, 'Current and new passwords are required');
+     }
+ 
+     const user = await User.findById(req.user?._id);
+     if (!user) {
+         throw new ApiError(404, 'User not found');
+     }
+ 
+     const isPasswordValid = await user.comparePassword(currentPassword);
+     if (!isPasswordValid) {
+         throw new ApiError(401, 'Current password is incorrect');
+     }
+ 
+     user.password = newPassword;
+     await user.save({ validateBeforeSave: false });
+ 
+     return res.status(200).json(new ApiResponse(200, 'Password changed successfully'));
+   } catch (error) {
+     console.error('Change password error:', error);
+     throw new ApiError(500, 'Failed to change password');
+   }
+});
 
-export { registerUser, loginUser, refreshAccessToken, logoutUser };
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(new ApiResponse(200, 'User retrieved successfully', req.user));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    try {
+        const { fullname, username, email } = req.body;
+    
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+    
+        if (fullname) user.fullname = fullname;
+        if (username) user.username = username;
+        if (email) user.email = email;
+    
+        await user.save({ validateBeforeSave: false });
+
+        const updatedUser = await User.findById(user._id)
+            .select('-password -__v -refreshToken');
+    
+        return res.status(200).json(
+            new ApiResponse(200, 'Account details updated successfully', updatedUser)
+        );
+    } catch (error) {
+        console.error('Update account details error:', error);
+        throw new ApiError(500, 'Failed to update account details');
+    }
+});
+
+const updateAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path;
+    if (!avatarLocalPath) {
+        throw new ApiError(400, 'Avatar image is required');
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, 'User not found');
+    }
+
+    try {
+        // Delete old avatar from Cloudinary if publicId exists
+        if (user.avatarPublicId) {
+            await deleteFromCloudinary(user.avatarPublicId);
+        }
+
+        // Upload new avatar to Cloudinary
+        const avatarUpload = await uploadOnCloudinary(avatarLocalPath);
+
+        user.avatar = avatarUpload.secure_url;
+        user.avatarPublicId = avatarUpload.public_id;
+
+        await user.save({ validateBeforeSave: false });
+
+        return res.status(200).json(
+            new ApiResponse(200, 'Avatar updated successfully', { avatar: user.avatar })
+        );
+    } catch (error) {
+        console.error('Avatar upload error:', error);
+        throw new ApiError(500, 'Avatar upload failed');
+    }
+});
+
+const updateCover = asyncHandler(async (req, res) => {
+    const coverLocalPath = req.file?.path;
+    if (!coverLocalPath) {
+        throw new ApiError(400, 'Cover image is required');
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, 'User not found');
+    }
+
+    try {
+        if (user.coverPublicId) {
+            await deleteFromCloudinary(user.coverPublicId);
+        }
+        
+        const coverUpload = await uploadOnCloudinary(coverLocalPath);
+
+        user.cover = coverUpload.secure_url;
+        user.coverPublicId = coverUpload.public_id;
+
+        await user.save({ validateBeforeSave: false });
+
+        return res.status(200).json(
+            new ApiResponse(200, 'Cover updated successfully', { cover: user.cover })
+        );
+    } catch (error) {
+        console.error('Cover upload error:', error);
+        throw new ApiError(500, 'Cover upload failed');
+    }
+});
+
+
+export { registerUser, loginUser, refreshAccessToken, logoutUser, changePassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCover };
