@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "c37e3f7f-a13c-4aa8-a81a-637b11d253ab",
+		"name": "Tea app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16304133",
+		"_collection_link": "https://orange-spaceship-290095.postman.co/workspace/New-Team-Workspace~1c7f3d6b-3e45-4473-8396-e903353bcf49/collection/16304133-c37e3f7f-a13c-4aa8-a81a-637b11d253ab?action=share&source=collection_link&creator=16304133"
+	},
+	"item": [
+		{
+			"name": "add a tea",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\" :  \"{{$randomDomainName}} tea\" ,\n    \"price\" : {{$randomPrice}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhosturl}}/teas",
+					"host": [
+						"{{localhosturl}}"
+					],
+					"path": [
+						"teas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all teas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhosturl}}/teas",
+					"host": [
+						"{{localhosturl}}"
+					],
+					"path": [
+						"teas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get tea by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhosturl}}/teas/4",
+					"host": [
+						"{{localhosturl}}"
+					],
+					"path": [
+						"teas",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update tea",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\" : \"No sugar tea\",\n    \"price\" : 600\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhosturl}}/teas/1",
+					"host": [
+						"{{localhosturl}}"
+					],
+					"path": [
+						"teas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete tea",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\" : \"No sugar tea\",\n    \"price\" : 600\n}"
+				},
+				"url": {
+					"raw": "{{localhosturl}}/teas/2",
+					"host": [
+						"{{localhosturl}}"
+					],
+					"path": [
+						"teas",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

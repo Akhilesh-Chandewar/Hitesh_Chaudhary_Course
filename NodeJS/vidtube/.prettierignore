@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+build/
+
+# environment files
+.env
+.env.*
+
+# logs
+*.log
+
+# test coverage
+coverage/
+
+# ignore config files
+.prettierrc
+.prettierrc.js
+.prettierrc.json
+.prettierignore
