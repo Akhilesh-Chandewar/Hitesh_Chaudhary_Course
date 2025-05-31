@@ -1,16 +1,40 @@
 'use client'
 
+import Link from 'next/link';
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
 const LoginPage = () => {
+    const router = useRouter();
+
     const [user, setUser] = React.useState({
         email: '',
-        password: ''
+        password: '',
     });
+
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState('');
 
     const onLogin = async () => {
-    }
+        setLoading(true);
+        setError('');
+        try {
+            const response = await axios.post('/api/users/login', {
+                email: user.email,
+                password: user.password,
+            });
+
+            if (response.status === 200) {
+                router.push('/profile');
+            }
+        } catch (err: any) {
+            console.error('Login error:', err);
+            setError(err.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -46,9 +70,18 @@ const LoginPage = () => {
                 >
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
+
+                <div className="mt-6 text-center">
+                    <p className="text-gray-600">
+                        Don&apos;t have an account?{' '}
+                        <Link href="/signup" className="text-blue-500 hover:underline">
+                            Sign Up
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default LoginPage
+export default LoginPage;

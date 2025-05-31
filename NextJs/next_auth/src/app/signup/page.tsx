@@ -1,19 +1,40 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 const SignupPage = () => {
-  const [user, setUser] = useState({ name: '', email: '', password: '' })
+  const router = useRouter()
+  const [user, setUser] = useState({ username: '', email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [buttonDisabled, setButtonDisabled] = useState(false)
+
+  useEffect(() => {
+    if (user.username && user.email && user.password) {
+      setButtonDisabled(false)
+    }
+    else {
+      setButtonDisabled(true)
+    }
+  }, [user.username, user.email, user.password])
 
   const onSignup = async () => {
     setLoading(true)
     setError('')
     try {
-      console.log('Signing up user:', user)
+      const response = await axios.post('/api/users/signup', {
+        username: user.username,
+        email: user.email,
+        password: user.password
+      })    
+      if (response.status === 201) {
+        router.push('/login')
+      }
     } catch (err) {
+      console.error('Signup error:', err)
       setError('Signup failed')
     } finally {
       setLoading(false)
@@ -30,8 +51,8 @@ const SignupPage = () => {
           <input
             type="text"
             className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={user.name}
-            onChange={(e) => setUser({ ...user, name: e.target.value })}
+            value={user.username}
+            onChange={(e) => setUser({ ...user, username: e.target.value })}
           />
         </div>
 
@@ -59,7 +80,7 @@ const SignupPage = () => {
 
         <button
           onClick={onSignup}
-          disabled={loading}
+          disabled={buttonDisabled}
           className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition duration-200 disabled:bg-gray-400"
         >
           {loading ? 'Signing up...' : 'Sign Up'}
