@@ -4,11 +4,11 @@ import { connect } from '@/dbConfig/dbConfig'
 
 connect()
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-    const userId = context.params.id
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+    const { id } = await context.params
 
     try {
-        const user = await User.findById(userId).select('-password')
+        const user = await User.findById(id).select('-password')
         if (!user) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 })
         }
@@ -18,4 +18,3 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
 }
-  

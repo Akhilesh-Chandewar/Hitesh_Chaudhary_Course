@@ -2,15 +2,19 @@
 
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useParams } from 'next/navigation'
 
-const UserProfile = ({ params }: { params: { id: string } }) => {
+const UserProfile = () => {
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!id) return
+
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`/api/users/${params.id}`)
+        const response = await axios.get(`/api/users/${id}`)
         setUser(response.data)
       } catch (error) {
         console.error('Failed to load user:', error)
@@ -20,7 +24,7 @@ const UserProfile = ({ params }: { params: { id: string } }) => {
     }
 
     fetchUser()
-  }, [params.id])
+  }, [id])
 
   if (loading) {
     return <p className="text-center mt-10">Loading...</p>
