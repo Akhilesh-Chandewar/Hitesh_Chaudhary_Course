@@ -37,7 +37,7 @@ const UserProfile = ({ params }: { params: { id: string } }) => {
         <p className="text-gray-700"><strong>ID:</strong> {user._id}</p>
         <p className="text-gray-700"><strong>Username:</strong> {user.username}</p>
         <p className="text-gray-700"><strong>Email:</strong> {user.email}</p>
-        <p className="text-gray-700"><strong>Verified:</strong> {user.isVarified ? 'Yes' : 'No'}</p>
+        <p className="text-gray-700"><strong>Verified:</strong> {user.isVerified ? 'Yes' : 'No'}</p>
         <p className="text-gray-700"><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
       </div>
     </div>

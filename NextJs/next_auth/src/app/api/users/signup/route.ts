@@ -2,6 +2,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { sendMail } from "@/helpers/mailer";
 
 connect();
 
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
             password: hashedPassword,
         });
         await newUser.save();
+        await sendMail(normalizedEmail, "VERIFY", newUser._id.toString());
         return NextResponse.json({ message: "User created successfully" }, { status: 201 });
     } catch (error) {
         console.error("Signup Error:", error);

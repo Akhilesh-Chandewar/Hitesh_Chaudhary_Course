@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    isVarified: {
+    isVerified: {
         type: Boolean,
         default: false,
     },
@@ -23,23 +23,11 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    forgotPasswordToken: {
-        type: String,
-        default: null,
-    },
-    forgotPasswordExpiry: {
-        type: Date,
-        default: null,
-    },
-    verificationToken: {
-        type: String,
-        default: null,
-    },
-    verificationTokenExpiry: {
-        type: Date,
-        default: null,
-    },
+    forgotPasswordToken: String,
+    forgotPasswordExpiry: Date,
+    verificationToken: String,
+    verificationTokenExpiry: Date,
 });
 
-const User = mongoose.models.users || mongoose.model("users", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;
