@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 
 const VerifyEmailPage = () => {
@@ -10,7 +10,7 @@ const VerifyEmailPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const verifyEmail = async (token: string) => {
+    const verifyEmail = useCallback(async (token: string) => {
         try {
             console.log('Verifying email with token:', token);
             const response = await axios.get('/api/users/verify', {
@@ -29,7 +29,7 @@ const VerifyEmailPage = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [router]);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -40,7 +40,7 @@ const VerifyEmailPage = () => {
             setError('No verification token provided.');
             setLoading(false);
         }
-    }, []);
+    }, [verifyEmail]); 
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
