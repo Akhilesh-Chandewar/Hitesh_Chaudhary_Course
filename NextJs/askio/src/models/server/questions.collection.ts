@@ -4,7 +4,6 @@ import { databases } from './config';
 
 export default async function createQuestionCollection() {
     try {
-        // Create collection with permissions
         await databases.createCollection(
             db,
             questionCollection,
@@ -16,32 +15,24 @@ export default async function createQuestionCollection() {
                 Permission.delete(Role.users()),
             ]
         );
-        console.log('Collection created.');
+        console.log('Question collection created.');
 
-        // Create attributes
-        await Promise.all([
-            databases.createStringAttribute(db, questionCollection, 'title', 100, true),
-            databases.createStringAttribute(db, questionCollection, 'content', 1000, true),
-            databases.createStringAttribute(db, questionCollection, 'authorId', 100, true),
-            databases.createStringAttribute(db, questionCollection, 'attachmentId', 100, false),
-            databases.createStringAttribute(db, questionCollection, 'tags', 100, true, undefined, true), // array = true
-        ]);
-        console.log('Attributes created successfully.');
+        await databases.createStringAttribute(db, questionCollection, 'title', 100, true);
+        await databases.createStringAttribute(db, questionCollection, 'content', 1000, true);
+        await databases.createStringAttribute(db, questionCollection, 'authorId', 100, true);
+        await databases.createStringAttribute(db, questionCollection, 'attachmentId', 100, false);
+        await databases.createStringAttribute(db, questionCollection, 'tags', 100, true, undefined, true);
+        console.log('Question attributes created.');
 
-        // Create indexes
-        await Promise.all([
-            databases.createIndex(db, questionCollection, 'title', IndexType.Fulltext, ['title']),
-            databases.createIndex(db, questionCollection, 'content', IndexType.Fulltext, ['content']),
-            databases.createIndex(db, questionCollection, 'authorId', IndexType.Key, ['authorId'], ['asc']),
-            databases.createIndex(db, questionCollection, 'attachmentId', IndexType.Key, ['attachmentId'], ['asc']),
-            databases.createIndex(db, questionCollection, 'tags', IndexType.Key, ['tags'], ['asc']),
-        ]);
-        console.log('Indexes created successfully.');
+        await new Promise((res) => setTimeout(res, 1000));
+
+        await databases.createIndex(db, questionCollection, 'title', IndexType.Fulltext, ['title']);
+        await databases.createIndex(db, questionCollection, 'content', IndexType.Fulltext, ['content']);
+        await databases.createIndex(db, questionCollection, 'authorId', IndexType.Key, ['authorId'], ['asc']);
+        await databases.createIndex(db, questionCollection, 'attachmentId', IndexType.Key, ['attachmentId'], ['asc']);
+        await databases.createIndex(db, questionCollection, 'tags', IndexType.Key, ['tags'], ['asc']);
+        console.log('Question indexes created.');
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Failed to create collection:', error.message);
-        } else {
-            console.error('Unknown error:', error);
-        }
+        console.error('Failed to create question collection:', error instanceof Error ? error.message : error);
     }
 }

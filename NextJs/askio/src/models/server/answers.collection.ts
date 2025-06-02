@@ -1,14 +1,13 @@
-import { IndexType, Permission, Role } from "node-appwrite";
-import { answerCollection, db } from "../name";
-import { databases } from "./config";
+import { IndexType, Permission, Role } from 'node-appwrite';
+import { answerCollection, db } from '../name';
+import { databases } from './config';
 
 export default async function createAnswerCollection() {
     try {
-        // Create collection
         await databases.createCollection(
             db,
             answerCollection,
-            answerCollection,
+            'answerCollection',
             [
                 Permission.create(Role.users()),
                 Permission.read(Role.any()),
@@ -16,21 +15,20 @@ export default async function createAnswerCollection() {
                 Permission.delete(Role.users()),
             ]
         );
-        console.log("Answer Collection Created");
+        console.log('Answer collection created.');
 
-        // Create attributes
-        await Promise.all([
-            databases.createIndex(db, answerCollection, 'questionId', IndexType.Key, ['questionId'], ['asc']),
-            databases.createIndex(db, answerCollection, 'authorId', IndexType.Key, ['authorId'], ['asc']),
-            databases.createIndex(db, answerCollection, 'content', IndexType.Fulltext, ['content']),
-        ]);
-        console.log('Answer Indexes Created');
-        
+        await databases.createStringAttribute(db, answerCollection, 'questionId', 100, true);
+        await databases.createStringAttribute(db, answerCollection, 'authorId', 100, true);
+        await databases.createStringAttribute(db, answerCollection, 'content', 1000, true);
+        console.log('Answer attributes created.');
+
+        await new Promise((res) => setTimeout(res, 1000));
+
+        await databases.createIndex(db, answerCollection, 'questionId', IndexType.Key, ['questionId'], ['asc']);
+        await databases.createIndex(db, answerCollection, 'authorId', IndexType.Key, ['authorId'], ['asc']);
+        await databases.createIndex(db, answerCollection, 'content', IndexType.Fulltext, ['content']);
+        console.log('Answer indexes created.');
     } catch (error) {
-        if (error instanceof Error) {
-            console.error("Error creating Answer collection:", error.message);
-        } else {
-            console.error("Unknown error:", error);
-        }
+        console.error('Failed to create answer collection:', error instanceof Error ? error.message : error);
     }
 }
