@@ -10,23 +10,21 @@ export default clerkMiddleware(async (auth, req) => {
     const isApiRoute = currentPath.startsWith('/api')
     const isAccessingDashboard = currentPath === '/home'
 
-    // Redirect logged-in users away from sign-in/up/public pages
     if (userId && isPublicRoute(req) && !isAccessingDashboard) {
-        return Response.redirect(new URL('/home', req.url))
+        return NextResponse.redirect(new URL('/home', req.url))
     }
 
-    // If not logged in
     if (!userId) {
         if (!isPublicRoute(req) && !isPublicApiRoute(req)) {
-            return Response.redirect(new URL('/sign-in', req.url))
+            return NextResponse.redirect(new URL('/sign-in', req.url))
         }
 
         if (isApiRoute && !isPublicApiRoute(req)) {
-            return new Response('Unauthorized', { status: 401 })
+            return new NextResponse('Unauthorized', { status: 401 })
         }
     }
 
-    return NextResponse.next()
+    return NextResponse.next() 
 })
 
 export const config = {
