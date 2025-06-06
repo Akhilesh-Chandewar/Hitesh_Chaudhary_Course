@@ -5,6 +5,7 @@
 use("Aggregation");
 
 // Q : find average number of tags for users
+// Part 1
 db.getCollection("Users").aggregate([
     {
         $unwind: "$tags"
@@ -26,3 +27,25 @@ db.getCollection("Users").aggregate([
         }
     }
 ]);
+
+// Part 2
+db.getCollection("Users").aggregate([
+    {
+        $addFields: {
+            numberOfTags: {
+                $size: {
+                    $ifNull: ["$tags", []]
+                }
+            }
+        }
+    },
+    {
+        $group: {
+            _id: null,
+            averageNumberOfTags: {
+                $avg: "$numberOfTags"
+            }
+        }
+    }
+]);
+
