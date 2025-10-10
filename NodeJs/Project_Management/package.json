@@ -1,0 +1,22 @@
+{
+  "name": "project_management",
+  "version": "1.0.0",
+  "description": "Project management project for beginner",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "Hitesh",
+    "Choudhry",
+    "udemy",
+    "cource"
+  ],
+  "author": "Akhil",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}
