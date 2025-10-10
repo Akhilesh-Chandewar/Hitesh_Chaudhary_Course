@@ -1,26 +1,37 @@
 {
-  "name": "project_management",
+  "name": "projmanagement",
   "version": "1.0.0",
-  "description": "Project management project for beginner",
+  "description": "a project management application for beginners",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "keywords": [
-    "Hitesh",
-    "Choudhry",
     "udemy",
-    "cource"
+    "course",
+    "backend",
+    "API",
+    "creation"
   ],
-  "author": "Akhil",
+  "author": "hitesh choudhary",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^3.1.10",
     "prettier": "3.6.2"
   },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mailgen": "^2.0.29",
+    "mongoose": "^8.16.5",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.5"
   }
 }
